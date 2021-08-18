@@ -1,59 +1,50 @@
 const Transaction = require('../models/Transaction')
-const jwt = require('jsonwebtoken');
 
 class TransactionDao {
 
-    create = async (transaction, response) => {
+    create = async (transaction) => {
 
-        await Transaction.create(transaction)
-            .then(res => {
-                response.status(200).json(res)
-            })
-            .catch(err => {
-                response.status(400).json(err)
-            })
-
-    }
-
-    list = async (id = null, response) => {
-
-        if (id) {
-            await Transaction.findByPk(id)
-                .then(res => {
-                    response.status(200).json(res)
-                })
-                .catch(err => {
-                    response.status(400).json(err)
-                })
-        } else {
-            await Transaction.findAll({
-                order: [
-                    ['id', 'ASC']]
-            })
-                .then(res => {
-                    response.status(200).json(res)
-                })
-                .catch(err => {
-                    response.status(400).json(err)
-                })
-        }
+        return new Promise(async (resolve, reject) => {
+            try {
+                resolve(await Transaction.create(transaction));
+            } catch (err) {
+                reject(err.toString());
+            };
+        })
 
     }
 
-    update = async (transaction, response) => {
+    list = (id = null) => {
 
-        Transaction.update(transaction,
-            {
-                where: {
-                    id: transaction.id
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (id) {
+                    resolve(await Transaction.findByPk(id))
+                } else {
+                    resolve(await Transaction.findAll({ order: [['id', 'ASC']] }))
                 }
-            })
-            .then(res => {
-                response.status(200).json(res)
-            })
-            .catch(err => {
-                response.status(400).json(err)
-            })
+            } catch (err) {
+                reject(err.toString());
+            };
+        })
+
+    }
+
+    update = async (transaction) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                resolve(
+                    Transaction.update(transaction,
+                        {
+                            where: { id: transaction.id }
+                        }
+                    )
+                );
+
+            } catch (err) {
+                reject(err.toString());
+            };
+        })
 
     }
 

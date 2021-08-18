@@ -1,7 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser')
 const consign = require('consign')
-var cors = require('cors')
+const cors = require('cors')
+const { handleError } = require('../config/ErrorHandler')
+const { Sequelize } = require('sequelize');
 
 
 module.exports = () => {
@@ -9,17 +11,18 @@ module.exports = () => {
 
     app.use(bodyParser.json());
     app.use(cors())
+    app.use(handleError);
 
     consign()
         .include('./src/controllers')
         .into(app);
 
+
     (async () => {
         const database = require('./dataBase');
 
         try {
-            const resultado = await database.sync();
-            console.log(resultado);
+            await database.sync();
         } catch (error) {
             console.log(error);
         }

@@ -3,76 +3,61 @@ const jwt = require('jsonwebtoken');
 
 class UserDao {
 
-    create = async (user, response) => {
+    create = (user) => {
 
-        await User.create(user)
-            .then(res => {
-                response.status(200).json(res)
-            })
-            .catch(err => {
-                response.status(400).json(err)
-            })
-
-    }
-
-    list = async (id = null, response) => {
-
-        if (id) {
-            await User.findByPk(id)
-                .then(res => {
-                    response.status(200).json(res)
-                })
-                .catch(err => {
-                    response.status(400).json(err)
-                })
-        } else {
-            await User.findAll({
-                order: [
-                    ['id', 'ASC']]
-            })
-                .then(res => {
-                    response.status(200).json(res)
-                })
-                .catch(err => {
-                    response.status(400).json(err)
-                })
-        }
+        return new Promise(async (resolve, reject) => {
+            try {
+                resolve(await User.create(user));
+            } catch (err) {
+                reject(err.toString());
+            };
+        })
 
     }
 
-    update = async (user, response) => {
+    list = (id = null) => {
 
-        User.update(user,
-            {
-                where: {
-                    id: user.id
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (id) {
+                    resolve(await User.findByPk(id))
+                } else {
+                    resolve(await User.findAll({ order: [['id', 'ASC']] }))
                 }
-            })
-            .then(res => {
-                response.status(200).json(res)
-            })
-            .catch(err => {
-                response.status(400).json(err)
-            })
+            } catch (err) {
+                reject(err.toString());
+            };
+        })
 
     }
 
-    login = async (user, response) => {
-        await User.findOne({ where: { username: user.username, password: user.password } })
-            .then(res => {
-                if (res) {
-                    const token = jwt.sign({ id: res.id }, process.env.TOKEN_SECRET, {
-                        expiresIn: 1800 //30min
-                    });
+    update = async (user) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                resolve(
+                    User.update(user,
+                        {
+                            where: { id: user.id }
+                        }
+                    )
+                );
 
-                    response.status(200).json({ auth: true, token: token })
-                }else{
-                    response.status(400).json({message: "User or password is wrong!"})
-                }
-            })
-            .catch(err => {
-                response.status(400).json(err)
-            })
+            } catch (err) {
+                reject(err.toString());
+            };
+        })
+
+    }
+
+    login = async (user) => {
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                resolve(await User.findOne({ where: { username: user.username, password: user.password } }));
+            } catch (err) {
+                reject(err.toString());
+            };
+        })
     }
 
 }
